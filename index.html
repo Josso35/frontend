@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Timer Game</title>
+  <script>
+    async function clickButton() {
+      const name = document.getElementById("name").value;
+
+      if (!name) {
+        alert("Please enter your name!");
+        return;
+      }
+
+      const response = await fetch('/click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+
+      const data = await response.json();
+      updateLeaderboard(data.leaderboard);
+    }
+
+    async function fetchLeaderboard() {
+      const response = await fetch('/leaderboard');
+      const leaderboard = await response.json();
+      updateLeaderboard(leaderboard);
+    }
+
+    function updateLeaderboard(leaderboard) {
+      const board = document.getElementById("leaderboard");
+      board.innerHTML = "";
+
+      leaderboard.forEach(([user, time]) => {
+        const li = document.createElement("li");
+        li.textContent = `${user}: ${time.toFixed(2)} seconds`;
+        board.appendChild(li);
+      });
+    }
+
+    // Refresh leaderboard every 5 seconds
+    setInterval(fetchLeaderboard, 5000);
+  </script>
+</head>
+<body>
+  <h1>Global Timer Game</h1>
+  <input type="text" id="name" placeholder="Enter your name">
+  <button onclick="clickButton()">Claim Timer</button>
+
+  <h2>Leaderboard</h2>
+  <ul id="leaderboard"></ul>
+</body>
+</html>
